@@ -28,11 +28,24 @@ class SingerProfile:
     isStar: int = 0
     content_type: str = '0'
     pic: str = ''
+    
+@dataclass
+class SigerDetail:
+    birthday: str = ''
+    birthplace: str = ''
+    country: str = ''
+    gener: str = ''
+    weight: str = ''
+    tall: str = ''
+    language: str = ''
+    constellation: str = ''
+    info: str = ''
 
 class Singer:
     def __init__(
     self,
     ProfileData: SingerProfile,
+    DetailData: SigerDetail
 ):
         pass
         
