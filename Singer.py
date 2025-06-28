@@ -8,7 +8,7 @@ class SingerProfile:
     
     Attributes:
         name(str): The name of the singer.
-        id(int): ID of the singer in the kuwo website.
+        id(int): ID of the singer in the kuwo website, defalts to -1.
         aartist(str): Another name of the singer, defalts to empty string.
         artistFans(int): Number of fans of the singer, defalts to 0.
         albumNum(int): Number of albums of the singer, defalts to 0.
@@ -17,9 +17,18 @@ class SingerProfile:
         isStar(int): It seems that this number has no meaning, defalts to 0.
         content_type: It seems that this string has no meaning, defalts to '0'.
         pic(str): URL of a defalt picture(300 * 300) of the singer, defalt to empty string.
+        birthday(str): Birthday of the singer.
+        birthplace(str): Birthplace of the singer.
+        country(str): Country of the singer.
+        gener(str): Gender of the singer.
+        weight(str): Weight of the singer.
+        tall(str): Height of the singer.
+        language(str): Language of the singer.
+        constellation(str): Constellation(星座) of the singer.
+        info(str): Detailed information of the singer.
     """
     name: str
-    id: int
+    id: int = -1
     aartist: str = ''
     artistFans: int = 0
     albumNum: int = 0
@@ -28,9 +37,6 @@ class SingerProfile:
     isStar: int = 0
     content_type: str = '0'
     pic: str = ''
-    
-@dataclass
-class SigerDetail:
     birthday: str = ''
     birthplace: str = ''
     country: str = ''
@@ -40,12 +46,4 @@ class SigerDetail:
     language: str = ''
     constellation: str = ''
     info: str = ''
-
-class Singer:
-    def __init__(
-    self,
-    ProfileData: SingerProfile,
-    DetailData: SigerDetail
-):
-        pass
         
