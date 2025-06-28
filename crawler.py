@@ -1,8 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
-import re
 import json
-from Singer import SingerProfile, Singer, SingerDetail
+from Singer import SingerProfile
+from dataclasses import fields
+
+# Get a set of names in SingerProfile
+profile_field_names = {f.name for f in fields(SingerProfile)}
 
 def get_singers(
     category: int,
@@ -23,7 +26,7 @@ def get_singers(
         If any error is raised, the function will return an empty list.
     """
     base_url = "https://wapi.kuwo.cn/api/www/artist/artistInfo"
-    # HTTP parameters for the API request.
+    # HTTP parameters for the API request
     params = {
         "category": category,
         "prefix": "",
@@ -34,7 +37,7 @@ def get_singers(
         "plat": "web_www",
         "from": ""
     }
-    # Custom HTTP headers to mimic a browser request and avoid anti-scraping measures.
+    # Custom HTTP headers to mimic a browser request and avoid anti-scraping measures
     headers = {
         "Accept": "application/json, text/plain,",
         "Accept-Language": "zh-CN,zh;q=0.9",
@@ -79,8 +82,15 @@ def get_singers(
         
         # Iterate through data to transfer json to SingerProfile
         for singer_data_dict in data:
+            # Only keep data which is needed by SingerProfile
+            filtered_singer_data = {
+                key: value
+                for key, value in singer_data_dict.items()
+                if key in profile_field_names
+            }
+            
             try:
-                singer_profile = SingerProfile(**singer_data_dict)
+                singer_profile = SingerProfile(**filtered_singer_data)
                 singer_profiles.append(singer_profile)
             except TypeError:
                 # If the singer_data_dict cannot match the SingerProfile
