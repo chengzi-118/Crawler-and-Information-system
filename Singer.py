@@ -27,7 +27,7 @@ class SingerProfile:
         constellation(str): Constellation(星座) of the singer.
         info(str): Detailed information of the singer.
     """
-    name: str
+    name: str = ''
     id: int = -1
     aartist: str = ''
     artistFans: int = 0

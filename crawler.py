@@ -3,100 +3,75 @@ from bs4 import BeautifulSoup
 import json
 from Singer import SingerProfile
 from dataclasses import fields
+from selenium.webdriver.common.by import By
+from seleniumwire import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+import gzip
+import io
 
-# Get a set of names in SingerProfile
-profile_field_names = {f.name for f in fields(SingerProfile)}
+target_keys = [key.name for key in fields(SingerProfile)]
 
-def get_singers(
-    category: int,
-    page: int
-) -> list[SingerProfile]:
-    """
-    Gets a list of strings from kuwo music.
+def complete_singer_detail(page: int, place: int):
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--window-size=1920x1080")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument(
+        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+    )
     
-    This function sends a request to the base url,
-    then receives the response and uses the response to get information of singers.
+    driver = webdriver.Chrome()
+    driver.get("https://www.kuwo.cn/singers")
+    time.sleep(1)
     
-    Args:
-        category(int): According to the website,0 means 全部歌手, 1 means 华语男 and 2 means 华语女.
-        page(int): The page number in the website
-        
-    Returns:
-        list[SingerProfile]: A list of SingerProfile containing basic information of a singer.
-        If any error is raised, the function will return an empty list.
-    """
-    base_url = "https://wapi.kuwo.cn/api/www/artist/artistInfo"
-    # HTTP parameters for the API request
-    params = {
-        "category": category,
-        "prefix": "",
-        "pn": page,
-        "rn": 60,
-        "httpsStatus": 1,
-        "reqId": "283aacd0-52a9-11f0-8edc-656bca46e1b4",
-        "plat": "web_www",
-        "from": ""
-    }
-    # Custom HTTP headers to mimic a browser request and avoid anti-scraping measures
-    headers = {
-        "Accept": "application/json, text/plain,",
-        "Accept-Language": "zh-CN,zh;q=0.9",
-        "Connection": "keep-alive",
-        "Origin": "https://www.kuwo.cn",
-        "Referer": "https://www.kuwo.cn/",
-        "Sec-Fetch-Dest": "empty",
-        "Sec-Fetch-Mode": "cors",
-        "Sec-Fetch-Site": "same-site",
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-            "(KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
-        ),
-        "sec-ch-ua": (
-            '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"'
-        ),
-        "sec-ch-ua-mobile": "?0",
-        "sec-ch-ua-platform": "Windows"
-    }
-    
-    response = requests.get(base_url, params = params, headers = headers)
-    if response.status_code != requests.codes.ok:
-        return []
-    
-    soup = BeautifulSoup(response.text, features = "lxml")
-    p_tag = soup.find('p')
-    
-    # <p> tag contains the list of artists
-    if p_tag:
-        json_str = p_tag.get_text()
-        
-        try:
-            data = json.loads(json_str)['data']['artistList']
-        except json.JSONDecodeError:
-            # If the response is not in json form
-            return [] 
-        except KeyError:
-            # If the response doesn't have 'artistList'
-            return []
-        
-        singer_profiles: list[SingerProfile] = []
-        
-        # Iterate through data to transfer json to SingerProfile
-        for singer_data_dict in data:
-            # Only keep data which is needed by SingerProfile
-            filtered_singer_data = {
-                key: value
-                for key, value in singer_data_dict.items()
-                if key in profile_field_names
-            }
-            
-            try:
-                singer_profile = SingerProfile(**filtered_singer_data)
-                singer_profiles.append(singer_profile)
-            except TypeError:
-                # If the singer_data_dict cannot match the SingerProfile
-                continue
-        
-        return singer_profiles
+    if page != 1:
+        path = '//li[@data-v-9fcc0c74][./span[text()="' + str(page) + '"]]'
+        check_input = driver.find_element(By.XPATH, path)
+        check_input.click()
     else:
-        # If no <p> tag is found
-        return []
+        driver.find_element(By.XPATH, '//li[@data-v-9fcc0c74][./span[text()="2"]]').click()
+        time.sleep(1)
+        driver.find_element(By.XPATH, '//li[@data-v-9fcc0c74][./span[text()="1"]]').click()
+    
+    time.sleep(1)
+    
+    target_api_substring = "wapi.kuwo.cn/api/www/artist/artistInfo"
+    
+    name: str = ''
+    id: int = -1
+    
+    for request in driver.requests:
+        if target_api_substring in request.url:
+            with gzip.open(io.BytesIO(request.response.body), 'rb') as f:
+                decompressed_data = f.read()
+                data = json.loads(decompressed_data.decode('utf-8'))['data']['artistList']
+                profile = data[place]
+                name = profile['name']
+                id = profile['id']
+    
+    artist_button = driver.find_element(By.XPATH, '//span[text()="' + name + '"]')
+    artist_button.click()
+    time.sleep(1)
+    
+    target_substring = "kuwo.cn/api/www/artist/artist?artistid=" + str(id)
+    for request in driver.requests:
+        if target_substring in request.url:
+            with gzip.open(io.BytesIO(request.response.body), 'rb') as f:
+                decompressed_data = f.read()
+                data = json.loads(decompressed_data.decode('utf-8'))['data']
+                info = data['info'].replace('&nbsp;', ' ')
+                data['info'] = info
+                filtered_data = {
+                    key: data.get(key, getattr(SingerProfile, key))
+                    for key in target_keys
+                }
+                singer_profile = SingerProfile(**filtered_data)
+                singer_profile.info
+                return singer_profile
+
+singer_object = complete_singer_detail(1, 0)
+print(singer_object.info)
