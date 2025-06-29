@@ -17,13 +17,13 @@ class SingerProfile:
         birthday(str): Birthday of the singer.
         birthplace(str): Birthplace of the singer.
         country(str): Country of the singer.
-        gener(str): Gender of the singer.
+        gender(str): Gender of the singer.
         weight(str): Weight of the singer.
-        tall(str): Height of the singer.
+        height(str): Height of the singer.
         language(str): Language of the singer.
         constellation(str): Constellation(星座) of the singer.
         info(str): Detailed information of the singer.
-        song_list(list[SongProfile]): List of songs of the singer.
+        song_list(list[str]): List of songs of the singer.
     """
     name: str = ''
     id: int = -1
@@ -36,9 +36,9 @@ class SingerProfile:
     birthday: str = ''
     birthplace: str = ''
     country: str = ''
-    gener: str = ''
+    gender: str = ''
     weight: str = ''
-    tall: str = ''
+    height: str = ''
     language: str = ''
     constellation: str = ''
     info: str = ''

@@ -114,6 +114,8 @@ def get_singer_detail(page: int, place: int, songnum: int) -> SingerProfile:
                 # Clean up HTML entities in the biographical information
                 info = data['info'].replace('&nbsp;', ' ')
                 data['info'] = info
+                aartist = data['aartist'].replace('&nbsp;', ' ')
+                data['aartist'] = aartist
                 
                 # Filter data to include only fields defined in SingerProfile dataclass
                 filtered_data = {
@@ -125,8 +127,12 @@ def get_singer_detail(page: int, place: int, songnum: int) -> SingerProfile:
                 # Limit song list to requested number and add to profile data
                 filtered_data['song_list'] = song_list[0: songnum]
                 
-                # Add orignal url of the singer.
+                # Add orignal url of the singer
                 filtered_data['orignal_url'] = 'https://www.kuwo.cn/singer_detail/' + str(id)
+                
+                # Modify names
+                filtered_data['gender'] = data['gener']
+                filtered_data['height'] = data['tall']
                 
                 # Create and return the complete singer profile object
                 singer_profile = SingerProfile(**filtered_data)
@@ -136,5 +142,6 @@ def get_singer_detail(page: int, place: int, songnum: int) -> SingerProfile:
     driver.quit()
     raise TimeoutError
 
-singer_object = get_singer_detail(2, 5, 10)
-print(singer_object.song_list)
+singer_object = get_singer_detail(1, 1, 4)
+for key in target_keys:
+    print(key, ': ', singer_object.__dict__.get(key))
