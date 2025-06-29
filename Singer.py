@@ -1,5 +1,4 @@
-import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 @dataclass
 class SingerProfile:
@@ -14,8 +13,6 @@ class SingerProfile:
         albumNum(int): Number of albums of the singer, defalts to 0.
         mvNum(int): Number of MVs of the singer, defalts to 0.
         musicNum(int): Number of musics of the singer, defalts to 0.
-        isStar(int): It seems that this number has no meaning, defalts to 0.
-        content_type: It seems that this string has no meaning, defalts to '0'.
         pic(str): URL of a defalt picture(300 * 300) of the singer, defalt to empty string.
         birthday(str): Birthday of the singer.
         birthplace(str): Birthplace of the singer.
@@ -26,6 +23,7 @@ class SingerProfile:
         language(str): Language of the singer.
         constellation(str): Constellation(星座) of the singer.
         info(str): Detailed information of the singer.
+        song_list(list[SongProfile]): List of songs of the singer.
     """
     name: str = ''
     id: int = -1
@@ -34,8 +32,6 @@ class SingerProfile:
     albumNum: int = 0
     mvNum: int = 0
     musicNum: int = 0
-    isStar: int = 0
-    content_type: str = '0'
     pic: str = ''
     birthday: str = ''
     birthplace: str = ''
@@ -46,4 +42,5 @@ class SingerProfile:
     language: str = ''
     constellation: str = ''
     info: str = ''
-        
+    song_list: list = field(default_factory=list)
+    orignal_url: str = ''
