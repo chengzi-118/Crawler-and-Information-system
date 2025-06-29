@@ -3,6 +3,8 @@ from Singer import SingerProfile
 from dataclasses import fields
 from selenium.webdriver.common.by import By
 from seleniumwire import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 import gzip
 import io
@@ -45,8 +47,14 @@ def get_singer_detail(
     
     # Navigate to the specified page number
     path = f'//li[@data-v-9fcc0c74][./span[text()="{page}"]]'
-    check_input = driver.find_element(By.XPATH, path)
-    check_input.click()
+    page_botton = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.XPATH, path))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", page_botton)
+    time.sleep(0.5)
+    WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, path))
+            ).click()
     time.sleep(1)
     
     # Clean former requests
@@ -54,11 +62,17 @@ def get_singer_detail(
         del driver.requests
     
     # Navigate to the singer's detailed profile page
-    artist_button = driver.find_element(
-        By.XPATH,
-        '//span[text()="' + name + '"]'
+    artist_button_xpath = f'//span[text()="{name}"]'
+    artist_button = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.XPATH, artist_button_xpath))
     )
-    artist_button.click()
+    
+    driver.execute_script("arguments[0].scrollIntoView(true);", artist_button)
+    time.sleep(0.5)
+
+    WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, artist_button_xpath))
+    ).click()
     time.sleep(1)
     
     # Define API endpoints for detailed singer information
@@ -151,24 +165,25 @@ def get_page_detail(page: int) -> dict[int: str]:
     # Navigate to the specified page number
     if page != 1:
         path = f'//li[@data-v-9fcc0c74][./span[text()="{page}"]]'
-        check_input = driver.find_element(By.XPATH, path)
-        check_input.click()
+        WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, path))
+            ).click()
+        
     else:
         # Workaround for page 1: navigate to page 2 first, then back to page 1
         # This is necessary
         # because direct navigation to page 1 doesn't trigger
         # the required API requests for data retrieval
-        driver.find_element(
-            By.XPATH,
-            '//li[@data-v-9fcc0c74][./span[text()="2"]]'
-        ).click()
-        time.sleep(1)
-        driver.find_element(
-            By.XPATH,
-            '//li[@data-v-9fcc0c74][./span[text()="1"]]'
-        ).click()
+        path = '//li[@data-v-9fcc0c74][./span[text()="2"]]'
+        WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, path))
+            ).click()
+        path = '//li[@data-v-9fcc0c74][./span[text()="1"]]'
+        WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, path))
+            ).click()
     
-    time.sleep(1)
+    time.sleep(1)    
     
     # Intercept and process API responses to extract singer information
     api_substring = "wapi.kuwo.cn/api/www/artist/artistInfo"
