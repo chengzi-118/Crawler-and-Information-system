@@ -16,24 +16,24 @@ PAGE_MAX = 3
 SINGER_NUM = 60
 
 def get_singer_detail(
+    id: int,
+    name: str,
     page: int,
-    place: int,
     song_num: int
     ) -> SingerProfile:
     """
     Scrape singer details from Kuwo Music
     using Selenium web automation.
     
-    This function navigates to the Kuwo Music singers page,
-    extracts detailed information about a specific singer 
+    This function extracts detailed information about a specific singer 
     including their profile data and song list,
     and returns a structured SingerProfile object.
     
     Args:
+        id (int): Target id of the singer
+        name (str): Target name of the singer
         page (int): Target page number on the singers listing
                     (1-based indexing)
-        place (int): Position of the singer on the specified page
-                     (0-based indexing)
         song_num (int): Maximum number of songs
                         to retrieve from the singer's catalog
                         
@@ -43,49 +43,15 @@ def get_singer_detail(
                        and a curated list of their songs
     """
     
-    driver.get("https://www.kuwo.cn/singers")
-    time.sleep(1)
-    
     # Navigate to the specified page number
-    if page != 1:
-        path = f'//li[@data-v-9fcc0c74][./span[text()="{page}"]]'
-        check_input = driver.find_element(By.XPATH, path)
-        check_input.click()
-    else:
-        # Workaround for page 1: navigate to page 2 first, then back to page 1
-        # This is necessary
-        # because direct navigation to page 1 doesn't trigger
-        # the required API requests for data retrieval
-        driver.find_element(
-            By.XPATH,
-            '//li[@data-v-9fcc0c74][./span[text()="2"]]'
-        ).click()
-        time.sleep(1)
-        driver.find_element(By.XPATH, '//li[@data-v-9fcc0c74][./span[text()="1"]]').click()
-    
+    path = f'//li[@data-v-9fcc0c74][./span[text()="{page}"]]'
+    check_input = driver.find_element(By.XPATH, path)
+    check_input.click()
     time.sleep(1)
     
-    # Intercept and process API responses to extract singer information
-    api_substring = "wapi.kuwo.cn/api/www/artist/artistInfo"
-    
-    # Initialize variables to store singer identification data
-    name: str = ''
-    id: int = -1
-    
-    # Parse intercepted network requests to find singer list data
-    for request in driver.requests:
-        if api_substring in request.url:
-            # Decompress gzip-encoded response data
-            with gzip.open(io.BytesIO(request.response.body), 'rb') as f:
-                decompressed_data = f.read().decode('utf-8')
-                data = json.loads(decompressed_data)['data']['artistList']
-                
-                # Extract basic profile information for the target singer
-                # Note: This provides only preliminary data;
-                #       detailed info requires additional API calls
-                profile = data[place]
-                name = profile['name']
-                id = profile['id']
+    # Clean former requests
+    if hasattr(driver, 'requests'):
+        del driver.requests
     
     # Navigate to the singer's detailed profile page
     artist_button = driver.find_element(
@@ -99,10 +65,12 @@ def get_singer_detail(
     artist_info_substring = (
         "kuwo.cn/api/www/artist/artist?artistid=" 
         + str(id)
+        + '&'
     )
     music_info_substring = (
         "kuwo.cn/api/www/artist/artistMusic?artistid=" 
         + str(id)
+        +'&'
     )
     
     # Initialize list to store the singer's songs
@@ -159,9 +127,71 @@ def get_singer_detail(
                 
                 # Create and return the complete singer profile object
                 singer_profile = SingerProfile(**filtered_data)
+                
+                driver.back()
+                time.sleep(1)
                 return singer_profile
     
     raise TimeoutError
+
+def get_page_detail(page: int) -> dict[int: str]:
+    """
+    Navigates to a specific singer list page and extracts singer IDs and names.
+
+    Args:
+        page (int): The target page number to navigate to.
+
+    Returns:
+        dict[int: str]: A dictionary mapping singer IDs to their names.
+    """
+    # Clean former requests
+    if hasattr(driver, 'requests'):
+        del driver.requests
+    
+    # Navigate to the specified page number
+    if page != 1:
+        path = f'//li[@data-v-9fcc0c74][./span[text()="{page}"]]'
+        check_input = driver.find_element(By.XPATH, path)
+        check_input.click()
+    else:
+        # Workaround for page 1: navigate to page 2 first, then back to page 1
+        # This is necessary
+        # because direct navigation to page 1 doesn't trigger
+        # the required API requests for data retrieval
+        driver.find_element(
+            By.XPATH,
+            '//li[@data-v-9fcc0c74][./span[text()="2"]]'
+        ).click()
+        time.sleep(1)
+        driver.find_element(
+            By.XPATH,
+            '//li[@data-v-9fcc0c74][./span[text()="1"]]'
+        ).click()
+    
+    time.sleep(1)
+    
+    # Intercept and process API responses to extract singer information
+    api_substring = "wapi.kuwo.cn/api/www/artist/artistInfo"
+    
+    singer_dict = dict()
+    
+    # Parse intercepted network requests to find singer list data
+    for request in driver.requests:
+        if api_substring in request.url:
+            # Decompress gzip-encoded response data
+            singer_dict.clear()
+            with gzip.open(io.BytesIO(request.response.body), 'rb') as f:
+                decompressed_data = f.read().decode('utf-8')
+                data = json.loads(decompressed_data)['data']['artistList']
+                
+                # Extract basic profile information for the target singer
+                # Note: This provides only preliminary data;
+                #       detailed info requires additional API calls
+                for profile in data:
+                    singer_dict[profile['id']] = profile['name']
+                  
+    return singer_dict
+    
 
 def start_crawler(start_page: int = 1, start_place: int = 0):
     
@@ -177,7 +207,15 @@ def start_crawler(start_page: int = 1, start_place: int = 0):
     """
 
     for page in range(start_page, PAGE_MAX + 1):
-        for place in range(start_place, SINGER_NUM):
+        
+        singer_dict = get_page_detail(page = page)
+        count = 0
+        
+        for id, name in singer_dict.items():
+            
+            if count < start_place:
+                count += 1
+                continue
             
             song_num = 0
             if page == 1:
@@ -186,8 +224,9 @@ def start_crawler(start_page: int = 1, start_place: int = 0):
                 song_num = NORMAL_SINGER_NUM
         
             singer_profile = get_singer_detail(
+                id = id,
+                name = name,
                 page = page,
-                place = place,
                 song_num = song_num
             )
             
@@ -195,14 +234,13 @@ def start_crawler(start_page: int = 1, start_place: int = 0):
                 singer_profile.save_to_local()
                 singer_profile.save_picture()
 
-                print("page = ", page, "place = ", place, "successfully saved")
+                print("page =", page, "place =", count, "successfully saved")
+                count += 1
                 
-                # Clean all the requests
-                driver.execute_script("window.localStorage.clear();")
-                driver.execute_script("window.sessionStorage.clear();")
             else:
                 # If the crawler failed to get right informaiton
                 raise RuntimeError
+        start_place = 0
 
 if __name__  == '__main__':
     
@@ -220,6 +258,8 @@ if __name__  == '__main__':
     
     # Initialize WebDriver and navigate to the singers page
     driver = webdriver.Chrome()
+    driver.get("https://www.kuwo.cn/singers")
+    time.sleep(1)
     
     start_page = int(input())
     start_place = int(input())
