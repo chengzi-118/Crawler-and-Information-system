@@ -87,8 +87,8 @@ def get_singer_detail(
         +'&'
     )
     
-    # Initialize list to store the singer's songs
-    song_list = []
+    # Initialize dict to store the singer's songs
+    song_dict = dict()
     
     # Extract song list from music API response
     for request in driver.requests:
@@ -98,8 +98,9 @@ def get_singer_detail(
                 datalist = json.loads(decompressed_data)['data']['list']
                 
                 # Collect song names from the API response
-                for songdata in datalist:
-                    song_list.append(songdata['name'])
+                for i, songdata in enumerate(datalist):
+                    if i < song_num:
+                        song_dict[songdata['rid']] = songdata['name']
     
     # Process detailed artist information and create SingerProfile object
     for request in driver.requests:
@@ -126,8 +127,7 @@ def get_singer_detail(
                     if key in target_keys
                 }
                 
-                # Limit song list to requested number and add to profile data
-                filtered_data['song_list'] = song_list[0: song_num]
+                filtered_data['song_dict'] = song_dict
                 
                 # Add orignal url of the singer
                 filtered_data['original_url'] = (
@@ -138,6 +138,7 @@ def get_singer_detail(
                 # Modify names
                 filtered_data['gender'] = data['gener']
                 filtered_data['height'] = data['tall']
+                filtered_data['region'] = data['country']
                 
                 # Create and return the complete singer profile object
                 singer_profile = SingerProfile(**filtered_data)
