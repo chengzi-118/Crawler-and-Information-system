@@ -1,5 +1,6 @@
 import json
 from Singer import SingerProfile
+from Song import SongProfile
 from dataclasses import fields
 from selenium.webdriver.common.by import By
 from seleniumwire import webdriver
@@ -9,19 +10,24 @@ import time
 import gzip
 import io
 
-# Extract field names from SingerProfile dataclass for data filtering
-target_keys = [key.name for key in fields(SingerProfile)]
+# Extract field names from SingerProfile 
+# and SongProfile dataclass for data filtering
+target_singer_keys = [key.name for key in fields(SingerProfile)]
+target_song_keys = [key.name for key in fields(SongProfile)]
 
 POPULAR_SINGER_NUM = 20
 NORMAL_SINGER_NUM = 10
 PAGE_MAX = 3
 SINGER_NUM = 60
 
+possible_extensions: list[str] = ['jpg', 'png', 'jpeg', 'gif', 'webp']
+
 def get_singer_detail(
     id: int,
     name: str,
     page: int,
-    song_num: int
+    song_num: int,
+    driver: webdriver.Chrome
     ) -> SingerProfile:
     """
     Scrape singer details from Kuwo Music
@@ -38,7 +44,8 @@ def get_singer_detail(
                     (1-based indexing)
         song_num (int): Maximum number of songs
                         to retrieve from the singer's catalog
-                        
+        driver (webdriver.Chrome): Chrome driver to mimic real
+                                   human                
     Returns:
         SingerProfile: Complete singer profile
                        containing biographical information
@@ -47,10 +54,10 @@ def get_singer_detail(
     
     # Navigate to the specified page number
     path = f'//li[@data-v-9fcc0c74][./span[text()="{page}"]]'
-    page_botton = WebDriverWait(driver, 10).until(
+    page_button = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.XPATH, path))
     )
-    driver.execute_script("arguments[0].scrollIntoView(true);", page_botton)
+    driver.execute_script("arguments[0].scrollIntoView(true);", page_button)
     time.sleep(0.5)
     WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.XPATH, path))
@@ -87,8 +94,8 @@ def get_singer_detail(
         +'&'
     )
     
-    # Initialize dict to store the singer's songs
-    song_dict = dict()
+    # Initialize list to store the singer's songs
+    song_list = []
     
     # Extract song list from music API response
     for request in driver.requests:
@@ -98,9 +105,40 @@ def get_singer_detail(
                 datalist = json.loads(decompressed_data)['data']['list']
                 
                 # Collect song names from the API response
-                for i, songdata in enumerate(datalist):
-                    if i < song_num:
-                        song_dict[songdata['rid']] = songdata['name']
+                for i, song_data in enumerate(datalist):
+                    
+                    # Test whether the pic_end is legal
+                    pic_end = song_data['pic'].split('.')[-1]
+                    if(pic_end in possible_extensions):
+                        if i < song_num:
+                            song_list.append(song_data['rid'])
+                        
+                            # Filter data to include only fields defined
+                            # in SongProfile dataclass
+                            filtered_data = {
+                                key: value
+                                for key, value in song_data.items() 
+                                if key in target_song_keys
+                                }
+                        
+                            # Modify names
+                            filtered_data['id'] = song_data['rid']
+                        
+                            # Add orignal url of the song
+                            filtered_data['original_url'] = (
+                                'https://www.kuwo.cn/play_detail/'
+                                f'{song_data['rid']}'
+                            )
+                        
+                            # Create the complete song profile object
+                            song_profile = SongProfile(**filtered_data)
+
+                            song_profile.save_to_local()
+                            song_profile.save_picture()
+                    else:
+                        # Choose another song
+                        song_num += 1
+                            
     
     # Process detailed artist information and create SingerProfile object
     for request in driver.requests:
@@ -124,10 +162,10 @@ def get_singer_detail(
                 filtered_data = {
                     key: value
                     for key, value in data.items() 
-                    if key in target_keys
+                    if key in target_singer_keys
                 }
                 
-                filtered_data['song_dict'] = song_dict
+                filtered_data['song_list'] = song_list
                 
                 # Add orignal url of the singer
                 filtered_data['original_url'] = (
@@ -149,12 +187,13 @@ def get_singer_detail(
     
     raise TimeoutError
 
-def get_page_detail(page: int) -> dict[int: str]:
+def get_page_detail(page: int, driver: webdriver.Chrome) -> dict[int: str]:
     """
     Navigates to a specific singer list page and extracts singer IDs and names.
 
     Args:
         page (int): The target page number to navigate to.
+        driver (webdriver.Chrome): Chrome driver to mimic real human.
 
     Returns:
         dict[int: str]: A dictionary mapping singer IDs to their names.
@@ -224,7 +263,7 @@ def start_crawler(start_page: int = 1, start_place: int = 0):
 
     for page in range(start_page, PAGE_MAX + 1):
         
-        singer_dict = get_page_detail(page = page)
+        singer_dict = get_page_detail(page = page, driver = driver)
         count = 0
         
         for id, name in singer_dict.items():
@@ -243,7 +282,8 @@ def start_crawler(start_page: int = 1, start_place: int = 0):
                 id = id,
                 name = name,
                 page = page,
-                song_num = song_num
+                song_num = song_num,
+                driver = driver
             )
             
             if singer_profile.id != -1:

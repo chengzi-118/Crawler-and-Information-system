@@ -30,7 +30,7 @@ class SingerProfile:
         language(str): Language of the singer.
         constellation(str): Constellation(星座) of the singer.
         info(str): Detailed information of the singer.
-        song_dict(dict[int: str]): Dict of songs' name and id of the singer.
+        song_list(list[int]): Dict of songs' name and id of the singer.
         original_url(str): URL can be clicked to navigate to the original page.
     """
     name: str = ''
@@ -50,7 +50,7 @@ class SingerProfile:
     language: str = ''
     constellation: str = ''
     info: str = ''
-    song_dict: dict = field(default_factory = dict)
+    song_list: list = field(default_factory = list)
     original_url: str = ''
     
     def save_to_local(self):
