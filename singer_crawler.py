@@ -129,6 +129,9 @@ def get_singer_detail(
                                 'https://www.kuwo.cn/play_detail/'
                                 f'{song_data['rid']}'
                             )
+                            
+                            # Ensure song's singer is correct
+                            filtered_data['artistid'] = id
                         
                             # Create the complete song profile object
                             song_profile = SongProfile(**filtered_data)
@@ -156,6 +159,8 @@ def get_singer_detail(
                 data['info'] = info
                 aartist = data['aartist'].replace('&nbsp;', ' ')
                 data['aartist'] = aartist
+                artist = data['name'].replace('&nbsp;', ' ')
+                data['name'] = artist
                 
                 # Filter data to include only fields defined
                 # in SingerProfile dataclass
