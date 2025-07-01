@@ -8,9 +8,29 @@ save_dir = './Song/'
 
 @dataclass
 class SongProfile:
+    """
+    Represents detailed information for a song.
+                                                                               
+    Attributes:
+        name (str): The name of the song.
+        id (int): Unique ID of the song on the Kuwo Music website;
+                  defaults to -1 if not available.
+        artist (str): The name of the song's artist.
+        artistid (int): Unique ID of the song's artist;
+                        defaults to 0 if not available.
+        pic (str): URL for the song's cover image;
+                   defaults to an empty string.
+        releasedate (str): The release date of the song.
+        duration (int): The duration of the song in seconds.
+        album (str): The album the song belongs to.
+        original_url (str): Direct URL to the song's original page.
+        lyrics (str): The lyrics of the song.
+        comments (list[str]): A list of comments for the song.
+    """
     name: str = ''
     id: int = -1
     artist: str = ''
+    artistid: int = 0
     pic: str = ''
     releasedate: str = ''
     duration: int = 0

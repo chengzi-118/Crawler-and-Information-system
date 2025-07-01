@@ -9,7 +9,7 @@ save_dir = './Singer/'
 @dataclass
 class SingerProfile:
     """
-    Represents basic information of a singer.
+    Represents detailed information of a singer.
     
     Attributes:
         name(str): The name of the singer.
