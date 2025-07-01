@@ -2,7 +2,7 @@ from django.db import models
 
 class Singer(models.Model):
     """
-    Represents a music singer and their associated information from Kuwo.
+    Represents a singer and its associated information from Kuwo.
     """
 
     kuwo_id = models.IntegerField(
@@ -15,7 +15,10 @@ class Singer(models.Model):
         unique = True,
         verbose_name = "name"
     )
-    image = models.ImageField(verbose_name = "picture")
+    image = models.ImageField(
+        upload_to = '',
+        verbose_name = "picture"
+    )
     info = models.TextField(
         blank = True,
         null = True,

@@ -179,8 +179,8 @@ class Command(BaseCommand):
                     # it creates a new instance using 'defaults' 
                     # and returns it, 'created=True'.
                     singer_instance, created = Singer.objects.get_or_create(
-                        kuwo_id=singer_kuwo_id,  # Unique identifier for lookup
-                        defaults={
+                        kuwo_id = singer_kuwo_id,  # Unique identifier for lookup
+                        defaults= {
                             # Map JSON keys to your Django model field names
                             'name': singer_data.get('name', 'Unknown Singer'),
                             'info': singer_data.get('info', ''),
@@ -274,7 +274,7 @@ class Command(BaseCommand):
                     # to find the local image file
                     for ext in possible_extensions:
                         current_local_image_path: str = os.path.join(
-                            image_root, str(singer_kuwo_id), f'pic{ext}'
+                            singer_data_root, str(singer_kuwo_id), f'pic{ext}'
                         )
                         if os.path.exists(current_local_image_path):
                             found_image_path = current_local_image_path

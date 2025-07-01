@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'singer'
+    'singer',
+    'song'
 ]
 
 MIDDLEWARE = [
@@ -123,5 +124,8 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 import os
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'Singer')
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR.parent, '')
