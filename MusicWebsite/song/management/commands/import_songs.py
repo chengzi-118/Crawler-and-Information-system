@@ -211,8 +211,8 @@ class Command(BaseCommand):
                         comments_list= comments_raw
                     
                     #Import lyrics
-                    lyrics_content: str = str(song_data.get('lyrics', ''))
-                    if not lyrics_content:
+                    lyrics_content: str = ''
+                    if song_data.get('lyrics', '') is None:
                         missing_lyric_list.append(song_kuwo_id)
                         self.stdout.write(
                             self.style.WARNING(
@@ -220,6 +220,8 @@ class Command(BaseCommand):
                                 f'{song_kuwo_id}'
                             )
                         )
+                    else:
+                        lyrics_content = str(song_data.get('lyrics', ''))
 
                     # --- Create or Update Song Object ---
                     # get_or_create tries to find an existing song
