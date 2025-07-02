@@ -196,7 +196,7 @@ class Command(BaseCommand):
                             'music_num': singer_data.get('musicNum', 0),
                             'birthday': singer_data.get('birthday', ''),
                             'birthplace': singer_data.get('birthplace', ''),
-                            'region': singer_data.get('country', ''),
+                            'region': singer_data.get('region', ''),
                             'gender': singer_data.get('gender', ''),
                             'weight': singer_data.get('weight', ''),
                             'height': singer_data.get('height', ''),
@@ -249,7 +249,7 @@ class Command(BaseCommand):
                         singer_instance.birthplace = singer_data\
                             .get('birthplace', '')
                         singer_instance.region = singer_data.\
-                            get('country', '')
+                            get('region', '')
                         singer_instance.gender = singer_data.\
                             get('gender', '')
                         singer_instance.weight = singer_data.\

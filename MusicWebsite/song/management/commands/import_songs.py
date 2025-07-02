@@ -186,7 +186,7 @@ class Command(BaseCommand):
                             associated_singer = Singer.objects.get(
                                 kuwo_id = artist_id_from_json
                             )
-                        except Song.DoesNotExist:
+                        except Singer.DoesNotExist:
                             self.stdout.write(self.style.WARNING(
                                 f' - Singer with kuwo_id {artist_id_from_json} '
                                 f'for song "{song_data.get("name", "Unknown")}" '
