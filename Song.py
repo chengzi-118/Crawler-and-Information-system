@@ -7,6 +7,20 @@ import json
 save_dir = './Song/'
 
 @dataclass
+class CommentProfile:
+    """
+    Represents detailed information for a single song comment.
+    
+    Attributes:
+        content (str): The text content of the comment.
+        username (str): The name of the user who posted the comment.
+        time (str): The timestamp of the comment in string format.
+    """
+    content: str = ''
+    username: str = ''
+    time: str = ''
+    
+@dataclass
 class SongProfile:
     """
     Represents detailed information for a song.
@@ -25,7 +39,7 @@ class SongProfile:
         album (str): The album the song belongs to.
         original_url (str): Direct URL to the song's original page.
         lyrics (str): The lyrics of the song.
-        comments (list[str]): A list of comments for the song.
+        comments (list[CommentProfile]): A list of comments for the song.
     """
     name: str = ''
     id: int = -1
