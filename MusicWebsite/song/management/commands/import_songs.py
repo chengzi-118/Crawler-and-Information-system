@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from typing import Any, Dict, List, Optional
@@ -129,7 +130,8 @@ class Command(BaseCommand):
             for i, json_file_path in enumerate(json_files_to_process):
                 self.stdout.write(f'Processing file ('
                                   f'{i+1}/{total_files}): {json_file_path}')
-
+                
+                song_folder_path = os.path.dirname(json_file_path)
                 try:
                     # Extract song ID from the folder name
                     song_id_from_path: str = os.path.basename(
@@ -211,13 +213,19 @@ class Command(BaseCommand):
                         comments_list= comments_raw
                     
                     #Import lyrics
-                    lyrics_content: str = ''
-                    if song_data.get('lyrics', '') is None:
+                    if song_data.get('lyrics') is None or song_data.get('lyrics') == '':
                         missing_lyric_list.append(song_kuwo_id)
                         self.stdout.write(
                             self.style.WARNING(
-                                f' - WARNING: Lyrics missing for song ID: '
-                                f'{song_kuwo_id}'
+                                f' - WARNING: Lyrics missing or empty for song ID: '
+                                f'{song_kuwo_id}. Deleting folder.'
+                            )
+                        )
+                        shutil.rmtree(song_folder_path)
+                        self.stdout.write(
+                            self.style.NOTICE(
+                                f' - Successfully deleted folder for song ID: '
+                                f'{song_kuwo_id} at {song_folder_path}'
                             )
                         )
                     else:
