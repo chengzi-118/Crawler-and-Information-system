@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from typing import Any, Dict, List, Optional
@@ -115,6 +116,8 @@ class Command(BaseCommand):
         imported_songs_count: int = 0
         processed_images_count: int = 0
         missing_images_count: int = 0
+        
+        missing_lyric_list: list[int] = []
 
         # --- Data Import using Transaction ---
         # transaction.atomic() ensures that 
@@ -127,7 +130,8 @@ class Command(BaseCommand):
             for i, json_file_path in enumerate(json_files_to_process):
                 self.stdout.write(f'Processing file ('
                                   f'{i+1}/{total_files}): {json_file_path}')
-
+                
+                song_folder_path = os.path.dirname(json_file_path)
                 try:
                     # Extract song ID from the folder name
                     song_id_from_path: str = os.path.basename(
@@ -182,7 +186,7 @@ class Command(BaseCommand):
                             associated_singer = Singer.objects.get(
                                 kuwo_id = artist_id_from_json
                             )
-                        except Singer.DoesNotExist:
+                        except Song.DoesNotExist:
                             self.stdout.write(self.style.WARNING(
                                 f' - Singer with kuwo_id {artist_id_from_json} '
                                 f'for song "{song_data.get("name", "Unknown")}" '
@@ -201,6 +205,31 @@ class Command(BaseCommand):
                             f' - Song "{song_data.get("name", "Unknown")}"'
                             f' has invalid artist_id (-1). No singer linked.'
                         ))
+                        
+                    # Import comments
+                    comments_raw = song_data.get('comments')
+                    comments_list: List[Dict[str, Any]] = []
+                    if comments_raw is not None:
+                        comments_list= comments_raw
+                    
+                    #Import lyrics
+                    if song_data.get('lyrics') is None or song_data.get('lyrics') == '':
+                        missing_lyric_list.append(song_kuwo_id)
+                        self.stdout.write(
+                            self.style.WARNING(
+                                f' - WARNING: Lyrics missing or empty for song ID: '
+                                f'{song_kuwo_id}. Deleting folder.'
+                            )
+                        )
+                        shutil.rmtree(song_folder_path)
+                        self.stdout.write(
+                            self.style.NOTICE(
+                                f' - Successfully deleted folder for song ID: '
+                                f'{song_kuwo_id} at {song_folder_path}'
+                            )
+                        )
+                    else:
+                        lyrics_content = str(song_data.get('lyrics', ''))
 
                     # --- Create or Update Song Object ---
                     # get_or_create tries to find an existing song
@@ -228,12 +257,8 @@ class Command(BaseCommand):
                             'album_name': song_data.get(
                                 'album', ''
                             ),
-                            'lyrics': song_data.get(
-                                'lyrics', ''
-                            ),
-                            'comments': song_data.get(
-                                'comments', []
-                            ),
+                            'lyrics': lyrics_content,
+                            'comments': comments_list,
                             'original_image_url': original_pic_url,
                         }
                     )
@@ -272,12 +297,8 @@ class Command(BaseCommand):
                         song_instance.album_name = song_data.get(
                             'album', ''
                         )
-                        song_instance.lyrics = song_data.get(
-                            'lyrics', ''
-                        )
-                        song_instance.comments = song_data.get(
-                            'comments', []
-                        )
+                        song_instance.lyrics = lyrics_content
+                        song_instance.comments = comments_list
                         song_instance.original_image_url = original_pic_url
                         
                         song_instance.singer = associated_singer
@@ -404,6 +425,14 @@ class Command(BaseCommand):
                     f'{missing_images_count}'
                     )
                 )
+            
+            if missing_lyric_list:
+                self.stdout.write(
+                    self.style.WARNING(
+                        f'Songs with missing lyrics (IDs): {missing_lyric_list}'
+                    )
+                )
+            
             self.stdout.write(
                 self.style.SUCCESS(
                     f'--- Import Complete ---'
