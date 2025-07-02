@@ -115,6 +115,8 @@ class Command(BaseCommand):
         imported_songs_count: int = 0
         processed_images_count: int = 0
         missing_images_count: int = 0
+        
+        missing_lyric_list: list[int] = []
 
         # --- Data Import using Transaction ---
         # transaction.atomic() ensures that 
@@ -182,7 +184,7 @@ class Command(BaseCommand):
                             associated_singer = Singer.objects.get(
                                 kuwo_id = artist_id_from_json
                             )
-                        except Singer.DoesNotExist:
+                        except Song.DoesNotExist:
                             self.stdout.write(self.style.WARNING(
                                 f' - Singer with kuwo_id {artist_id_from_json} '
                                 f'for song "{song_data.get("name", "Unknown")}" '
@@ -201,6 +203,23 @@ class Command(BaseCommand):
                             f' - Song "{song_data.get("name", "Unknown")}"'
                             f' has invalid artist_id (-1). No singer linked.'
                         ))
+                        
+                    # Import comments
+                    comments_raw = song_data.get('comments')
+                    comments_list: List[Dict[str, Any]] = []
+                    if comments_raw is not None:
+                        comments_list= comments_raw
+                    
+                    #Import lyrics
+                    lyrics_content: str = str(song_data.get('lyrics', ''))
+                    if not lyrics_content:
+                        missing_lyric_list.append(song_kuwo_id)
+                        self.stdout.write(
+                            self.style.WARNING(
+                                f' - WARNING: Lyrics missing for song ID: '
+                                f'{song_kuwo_id}'
+                            )
+                        )
 
                     # --- Create or Update Song Object ---
                     # get_or_create tries to find an existing song
@@ -228,12 +247,8 @@ class Command(BaseCommand):
                             'album_name': song_data.get(
                                 'album', ''
                             ),
-                            'lyrics': song_data.get(
-                                'lyrics', ''
-                            ),
-                            'comments': song_data.get(
-                                'comments', []
-                            ),
+                            'lyrics': lyrics_content,
+                            'comments': comments_list,
                             'original_image_url': original_pic_url,
                         }
                     )
@@ -272,12 +287,8 @@ class Command(BaseCommand):
                         song_instance.album_name = song_data.get(
                             'album', ''
                         )
-                        song_instance.lyrics = song_data.get(
-                            'lyrics', ''
-                        )
-                        song_instance.comments = song_data.get(
-                            'comments', []
-                        )
+                        song_instance.lyrics = lyrics_content
+                        song_instance.comments = comments_list
                         song_instance.original_image_url = original_pic_url
                         
                         song_instance.singer = associated_singer
@@ -404,6 +415,14 @@ class Command(BaseCommand):
                     f'{missing_images_count}'
                     )
                 )
+            
+            if missing_lyric_list:
+                self.stdout.write(
+                    self.style.WARNING(
+                        f'Songs with missing lyrics (IDs): {missing_lyric_list}'
+                    )
+                )
+            
             self.stdout.write(
                 self.style.SUCCESS(
                     f'--- Import Complete ---'

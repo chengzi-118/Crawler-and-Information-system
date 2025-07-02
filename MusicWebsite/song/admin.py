@@ -8,5 +8,5 @@ class SongAdmin(admin.ModelAdmin):
     Customizes the display and search functionality
     in the Django admin interface.
     """
-    list_display = ('name', 'kuwo_id', 'singer', 'album_name', 'duration')
+    list_display = ('name', 'kuwo_id', 'singer', 'album_name', 'duration', 'comments')
     search_fields = ('name', 'album_name')
