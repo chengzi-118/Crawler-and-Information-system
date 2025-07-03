@@ -1,0 +1,31 @@
+{% extends 'song/base.html' %}
+{% load static %}
+
+{% block title %}ACCOUNT MANAGEMENT{% endblock %}
+
+{% block content %}
+    <section class="hero-section">
+        <h2>WELCOME TO ECHOLLECT!</h2>
+        <h4>Set username to discover more.</h4>
+    </section>
+    <div class="content-wrapper">
+        <div class="left-pane">
+            <img src="{% static 'song/front.png' %}" class="front-image"></img>
+        </div>
+
+        <div class="right-pane">
+            <section class="username-container">
+                <h1>ACCOUNT</h1>
+                <form action="{% url 'account:set_username' %}" method="post">
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Input Your Username Here." value="{{ current_username }}" required>
+                    <button type="submit" name="action" value="set_username">Submit</button>
+                    <button type="submit" name="action" value="clear_username">QUIT</button>
+                </form>
+                {% if error_message %}
+                    <p class="error-message">{{ error_message }}</p>
+                {% endif %}
+            </section>
+        </div>
+    </div>
+{% endblock %}

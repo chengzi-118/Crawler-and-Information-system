@@ -1,0 +1,20 @@
+{% extends 'song/base.html' %}
+
+{% block title %}歌手列表 - 音乐库{% endblock %}
+
+{% block content %}
+    <h2>所有歌手</h2>
+    {% if singers %}
+        <ul>
+            {% for singer in singers %}
+                <li>{{ singer.name }} (ID: {{ singer.kuwo_id }})</li>
+            {% endfor %}
+        </ul>
+
+        {# TODO: 这里未来会添加分页控件 #}
+        <p>这里是分页控件的占位符。</p>
+
+    {% else %}
+        <p>目前没有歌手信息。</p>
+    {% endif %}
+{% endblock %}

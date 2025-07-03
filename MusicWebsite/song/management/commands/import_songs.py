@@ -65,12 +65,8 @@ class Command(BaseCommand):
             passed to the command.
         """
         song_data_root: str = options['song_data_root']
-        image_root: str = options['image_root']
-
-        # If --image_root is not provided,
-        # assume it's the same as song_data_root
-        if not image_root:
-            image_root = song_data_root
+        media_root_base = os.path.dirname(song_data_root)
+        relative_song_root_to_media = os.path.basename(song_data_root)
 
         # --- Input Validation ---
         if not os.path.isdir(song_data_root):
@@ -334,19 +330,14 @@ class Command(BaseCommand):
                             # MEDIA_ROOT (or image_root)
                             # Ensure path separators are forward slashes
                             # for Django's ImageField
-                            relative_path: str = os.path.relpath(
-                                found_image_path, image_root
+                            relative_path_for_db: str = os.path.join(
+                                relative_song_root_to_media,
+                                str(song_kuwo_id),
+                                os.path.basename(found_image_path)
                             ).replace('\\', '/')
-                            song_instance.image = relative_path
-                            
-                            # Only update the image field
-                            # to optimize database write
+                            song_instance.image = relative_path_for_db
+
                             song_instance.save(update_fields=['image'])
-                            self.stdout.write(
-                                ' - Associated song image: '
-                                f'{song_instance.image}'
-                                )
-                            processed_images_count += 1
 
                         except Exception as e:
                             self.stdout.write(
@@ -363,12 +354,7 @@ class Command(BaseCommand):
                             self.style.WARNING(
                                 f' - song {song_instance.name} '
                                 'image file not found locally in any '
-                                f'common format: '
-                                f'{os.path.join(
-                                    image_root,
-                                    str(song_kuwo_id),
-                                    "pic.*")}. '
-                                f'Original URL: {original_pic_url}'
+                                f'common format!'
                             )
                         )
                         missing_images_count += 1

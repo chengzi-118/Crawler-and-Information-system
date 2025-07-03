@@ -9,4 +9,4 @@ class SongAdmin(admin.ModelAdmin):
     in the Django admin interface.
     """
     list_display = ('name', 'kuwo_id', 'singer', 'album_name', 'duration', 'lyrics')
-    search_fields = ('name', 'album_name')
+    search_fields = ('name', 'album_name', 'lyrics')

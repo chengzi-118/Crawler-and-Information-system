@@ -17,11 +17,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
+from account import views as account_views 
+from django.views.generic.base import RedirectView
 from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('singer/', include('singer.urls'))
+    path('', account_views.home_redirect_view, name='home_redirect'), 
+    path('song/', RedirectView.as_view(url='/', permanent=False)),
+    path('songs/', include('song.urls')), 
+    path('singers/', account_views.singer_redirect_view, name='singer_list_redirect'), 
+    path('singers/', include('singer.urls')),
+    path('account/', include('account.urls')), 
 ]
 
 if settings.DEBUG:
