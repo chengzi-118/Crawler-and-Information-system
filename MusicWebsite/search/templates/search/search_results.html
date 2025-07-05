@@ -1,0 +1,103 @@
+{% extends 'song/base.html' %}
+{% load static %}
+
+{% block title %}RESULT{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+{% endblock %}
+
+{% block content %}
+    <p class="summary">Found {{ result_count }} results. (Time spent {{ search_time }} ms)</p>
+    {% if search_type == 'song' %}
+        <ul class="singer-songs-list">
+            {% for item in results %}
+                {% if item.separator == "name" %}
+                    </ul>
+                        <div class="separator-container">
+                            <p class="summary">The following are results matching song names</p>
+                        </div>
+                    <ul class="singer-songs-list">
+                {% elif item.separator == "singer_name" %}
+                    </ul>
+                        <div class="separator-container">
+                            <p class="summary">The following are songs matching singer names</p>
+                        </div>
+                    <ul class="singer-songs-list">
+                {% elif item.separator == "lyric" %}
+                    </ul>
+                        <div class="separator-container">
+                            <p class="summary">The following are songs matching lyrics</p>
+                        </div>
+                    <ul class="singer-songs-list">
+                {% else %}
+                    <li>
+                        <a href="{% url 'song:song_detail' item.pk %}">
+                            <img src="{{ item.image.url }}" alt="{{ item.name }}" class="thumbnail">
+                            <div class="sinfo">
+                                <span class="name">{{ item.name }}</span>
+                                <span class="song-artist">BY: {{ item.singer }}</span>
+                            </div>
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% elif search_type == 'singer' %}
+        <ul class="singer-songs-list">
+            {% for item in results %}
+                {% if item.separator == "info" %}
+                    </ul>
+                        <div class="separator-container">
+                            <p class="summary">The following are singers matching introduction</p>
+                        </div>
+                    <ul class="singer-songs-list">
+                {% elif item.separator == "name" %}
+                    </ul>
+                        <div class="separator-container">
+                            <p class="summary">The following are singers matching names</p>
+                        </div>
+                    <ul class="singer-songs-list">
+                {% else %}
+                    <li>
+                        <a href="{% url 'singer:singer_detail' item.pk %}">
+                            <img src="{{ item.image.url }}" alt="{{ item.name }}" class="thumbnail">
+                            <div class="sinfo">
+                                <span class="name">{{ item.name }}</span>
+                            </div>
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div class="pagination-container">
+        <div class="pagination-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1&q={{ query }}&type={{ search_type }}" class="first-page-link">First Page</a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="current-page">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}&q={{ query }}&type={{ search_type }}" class="pagination-link">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.paginator.num_pages }}&q={{ query }}&type={{ search_type }}" class="last-page-link">Last Page</a>
+            {% endif %}
+        </div>
+
+        <div class="pagination-jump-form-wrapper">
+            <form action="" method="get" class="pagination-jump-form">
+                <input type="hidden" name="q" value="{{ query }}">
+                <input type="hidden" name="type" value="{{ search_type }}">
+                <input type="number" name="page" min="1" max="{{ page_obj.paginator.num_pages }}" value="{{ page_obj.number }}" class="page-input">
+                <button type="submit" class="jump-button">Go</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'song/base.html' %}
+
+{% load static %}
+
+{% block title %}SONG DETAIL{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link rel="stylesheet" href="{% static 'song/css/song.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="detail-container">
+        <header class="header">
+            <img src="{{ song.image.url }}" alt="{{ song.name }}" class="detail-image">
+            <h1 class="detail-name">{{ song.name }}</h1>
+            <span class="detail-singer-name">
+                By: <a class="detail-singer-name-url" href="{% url 'singer:singer_detail' song.singer.pk %}">{{ song.singer.name }}</a>
+            </span>
+            <p class="original-url">Original Website: <a href="{{ song.original_url }}" target="_blank">{{ song.original_url }}</a></p>
+        </header>
+
+        <section class="resume-section">
+            <h2 class="section-title">Basic Information</h2>
+            <div class="info-grid">
+                {% if song.release_date %}
+                    <div class="info-item"><strong>RELEASE DATE:</strong> {{ song.release_date }}</div>
+                {% endif %}
+                {% if song.duration %}
+                    <div class="info-item"><strong>DURATION:</strong> {{ song.duration }}</div>
+                {% endif %}
+                {% if song.album_name %}
+                    <div class="info-item"><strong>ALBUM:</strong> {{ song.album_name }}</div>
+                {% endif %}
+                
+            </div>
+        </section>
+
+        <section class="resume-section">
+            <h2 class="section-title">LYRICS</h2>
+            <div class="info-grid">
+                <pre class="lyrics">{{ song.lyrics }}</pre>
+            </div>
+        </section>
+
+        <div class="back-link-container">
+            <a href="{% url 'song:home_page' %}?page={{ current_page }}" class="back-button">Back to Songs List</a>
+        </div>
+    </div>
+
+    <div class="comments">
+        <h2 class="comment-head">COMMENTS</h2>
+            <div class="comment-form">
+                <h3>Add a Comment with name {{ current_username }}</h3>
+                <form method="post" action="{% url 'song:song_detail' song.pk %}?page={{ current_page }}">
+                    {% csrf_token %}
+                    <textarea name="comment_content" rows="4" placeholder="Write your comment here...">{{ comment_content }}</textarea>
+                    <div class="submit-button-container">
+                        <button type="submit" class="submit-button">Submit Comment</button>
+                    </div>
+                </form>
+            </div>
+
+        <div class="comment-list">
+            {% for comment in song.comments %}
+                <div class="comment-item">
+                    <p class="comment-meta">
+                        <strong>{{ comment.username }}</strong>
+                        <form method="post" action="{% url 'song:delete_comment' comment.temp_id %}?page={{ current_page }}" class="delete-comment-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="song_id" value="{{ song.pk }}">
+                            <input type="hidden" name="comment_username" value="{{ comment.username }}">
+                            <input type="hidden" name="comment_content_match" value="{{ comment.content }}">
+                            <input type="hidden" name="comment_time_match" value="{{ comment.time }}">
+                            <button type="submit" class="delete-button">Delete</button>
+                        </form>
+                    </p>
+                    <pre class="comment-content">{{ comment.content }}</pre>
+                    <pre class="comment-time">{{ comment.time }}</pre>
+                </div>
+            {% endfor %}
+        </div>
+    </div>    
+{% endblock %}

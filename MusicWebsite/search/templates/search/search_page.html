@@ -1,0 +1,31 @@
+{% extends 'song/base.html' %}
+{% load static %}
+
+{% block title %}SEARCH{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link rel="stylesheet" href="{% static 'search/css/search.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="search-page-container">
+        <h1>SEARCH FOR ANYTHING!</h1>
+        <form action="{% url 'search:search_results' %}" method="get" class="search-form">
+            {% csrf_token %}
+            <div class="search-input-group">
+                <input type="text" name="q" placeholder="Search" maxlength="20" required class="search-input">
+                <button type="submit" class="search-button">SEARCH</button>
+            </div>
+
+            <div class="search-type-group">
+                <label class="radio-label">
+                    <input type="radio" name="type" value="song" checked>SONGS
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="type" value="singer">SINGERS
+                </label>
+            </div>
+        </form>
+    </div>
+{% endblock %}

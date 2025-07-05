@@ -1,0 +1,48 @@
+.bio-toggle-button {
+    float: right;
+}
+
+.metrics-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 15px;
+    text-align: center;
+}
+
+.metric-item {
+    flex: 1;
+    min-width: 120px;
+    background-color: #eef;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.metric-item strong {
+    display: block;
+    font-size: 1.1em;
+    color: #5704dc;
+    margin-bottom: 5px;
+}
+
+.singer-bio-content {
+    position: relative;
+}
+
+.singer-bio-truncated {
+    overflow: hidden;
+    display: -webkit-box;
+    display: -moz-box;
+    display: box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    box-orient: vertical;
+    text-overflow: ellipsis;
+}
+
+.detail-container .singer-songs-list {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+}

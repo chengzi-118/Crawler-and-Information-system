@@ -1,20 +1,60 @@
 {% extends 'song/base.html' %}
 
-{% block title %}歌手列表 - 音乐库{% endblock %}
+{% load static %}
+
+{% block title %}SINGERS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'singer/css/singer.css' %}">
+<link rel="stylesheet" href="{% static 'css/global.css' %}">
+{% endblock %}
 
 {% block content %}
-    <h2>所有歌手</h2>
-    {% if singers %}
-        <ul>
-            {% for singer in singers %}
-                <li>{{ singer.name }} (ID: {{ singer.kuwo_id }})</li>
+    <p class="summary">Displaying {{ singers|length }} singers on page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.</p>
+    <ul class="singer-songs-list">
+        {% for singer in singers %}
+            <li>
+                <a href="{% url 'singer:singer_detail' singer.pk %}?page={{ current_page_num }}">
+                    <img src="{{ singer.image.url }}" alt="{{ singer.name }}" class="thumbnail">
+                    <div class="sinfo">
+                        <span class="name">{{ singer.name }}</span>
+                    </div>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div class="pagination-container">
+        <div class="pagination-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1" class="first-page-link">First Page</a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="current-page">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}" class="pagination-link">{{ num }}</a>
+                {% endif %}
             {% endfor %}
-        </ul>
 
-        {# TODO: 这里未来会添加分页控件 #}
-        <p>这里是分页控件的占位符。</p>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="last-page-link">Last Page</a>
+            {% endif %}
+        </div>
 
-    {% else %}
-        <p>目前没有歌手信息。</p>
-    {% endif %}
+        <div class="pagination-jump-form-wrapper">
+            <form action="" method="get" class="pagination-jump-form">
+                <input type="number" name="page" min="1" max="{{ page_obj.paginator.num_pages }}" value="{{ page_obj.number }}" class="page-input">
+                <button type="submit" class="jump-button">Go</button>
+            </form>
+        </div>
+    </div>
+
+    <form action="{% url 'singer:change_display_num_url' %}" method="post" class="display-num-form">
+        {% csrf_token %}
+        <input type="text" name="display_num" placeholder="Singers per page" required>
+        <button type="submit" name="action" value="change" class="submit-button">Submit</button>
+    </form>
+
 {% endblock %}

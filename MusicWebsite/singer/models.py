@@ -16,7 +16,7 @@ class Singer(models.Model):
         verbose_name = "name"
     )
     image = models.ImageField(
-        upload_to = '',
+        upload_to='Singer',
         verbose_name = "picture"
     )
     info = models.TextField(

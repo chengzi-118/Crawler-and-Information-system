@@ -9,8 +9,8 @@ class SingerAdmin(admin.ModelAdmin):
     Admin configuration for the Singer model.
     Customizes the display and search functionality in the Django admin interface.
     """
-    list_display = ('kuwo_id', 'name', 'original_url', 'display_songs_list_full')
-    search_fields = ('name', 'region', 'kuwo_id')
+    list_display = ('kuwo_id', 'name', 'region', 'display_songs_list_full')
+    search_fields = ('region', 'kuwo_id')
     
     readonly_fields = ('display_songs_list_full',)
     
@@ -22,5 +22,5 @@ class SingerAdmin(admin.ModelAdmin):
                 link = f'/admin/song/song/{song.kuwo_id}/change/'
                 song_links.append(f'<a href="{link}">{song.name}</a>')
             return format_html("<ul>{}</ul>".format("".join([f"<li>{item}</li>" for item in song_links])))
-        return "无歌曲" # <--- 改进：当没有歌曲时显示友好提示
+        return "No singer"
         

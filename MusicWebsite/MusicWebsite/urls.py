@@ -24,11 +24,11 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', account_views.home_redirect_view, name='home_redirect'), 
-    path('song/', RedirectView.as_view(url='/', permanent=False)),
     path('songs/', include('song.urls')), 
     path('singers/', account_views.singer_redirect_view, name='singer_list_redirect'), 
     path('singers/', include('singer.urls')),
     path('account/', include('account.urls')), 
+    path("search/", include('search.urls', namespace='search')),
 ]
 
 if settings.DEBUG:

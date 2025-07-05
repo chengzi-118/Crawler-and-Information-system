@@ -1,0 +1,128 @@
+{% extends 'song/base.html' %}
+
+{% load static %}
+
+{% block title %}SINGER DETAIL{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link rel="stylesheet" href="{% static 'singer/css/singer.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="detail-container">
+        <header class="header">
+            <img src="{{ singer.image.url }}" alt="{{ singer.name }}" class="detail-image">
+            <h1 class="detail-name">{{ singer.name }}</h1>
+            <p class="original-url">Original Website: <a href="{{ singer.original_url }}" target="_blank">{{ singer.original_url }}</a></p>
+        </header>
+
+        <section class="resume-section">
+            <h2 class="section-title">Basic Information</h2>
+            <div class="info-grid">
+                {% if singer.alias %}
+                    <div class="info-item"><strong>Alias:</strong> {{ singer.alias }}</div>
+                {% endif %}
+                {% if singer.birthday %}
+                    <div class="info-item"><strong>Birthday:</strong> {{ singer.birthday }}</div>
+                {% endif %}
+                {% if singer.birthplace %}
+                    <div class="info-item"><strong>Birthplace:</strong> {{ singer.birthplace }}</div>
+                {% endif %}
+                {% if singer.region %}
+                    <div class="info-item"><strong>Region:</strong> {{ singer.region }}</div>
+                {% endif %}
+                {% if singer.gender %}
+                    <div class="info-item"><strong>Gender:</strong> {{ singer.gender }}</div>
+                {% endif %}
+                {% if singer.weight %}
+                    <div class="info-item"><strong>Weight:</strong> {{ singer.weight }}</div>
+                {% endif %}
+                {% if singer.height %}
+                    <div class="info-item"><strong>Height:</strong> {{ singer.height }}</div>
+                {% endif %}
+                {% if singer.language %}
+                    <div class="info-item"><strong>Language:</strong> {{ singer.language }}</div>
+                {% endif %}
+                {% if singer.constellation %}
+                    <div class="info-item"><strong>Constellation:</strong> {{ singer.constellation }}</div>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="resume-section">
+            <h2 class="section-title">Career Metrics</h2>
+            <div class="metrics-container">
+                <div class="metric-item"><strong>Fans:</strong> {{ singer.fan_num }}</div>
+                <div class="metric-item"><strong>Albums:</strong> {{ singer.album_num }}</div>
+                <div class="metric-item"><strong>MVs:</strong> {{ singer.mv_num }}</div>
+                <div class="metric-item"><strong>Musics:</strong> {{ singer.music_num }}</div>
+            </div>
+        </section>
+
+        {% if singer.info %}
+        <section class="resume-section">
+            <h2 class="section-title">Biography</h2>
+            <div class="singer-bio-content">
+                <p id="singerBioText" class="singer-bio-truncated">
+                    {{ singer.info|linebreaksbr|safe }}
+                </p>
+                <button id="toggleBio" class="back-button bio-toggle-button" style="display: none; margin-top: 10px;">SEE MORE</button>
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="resume-section">
+            <h2 class="section-title">Discography</h2>
+            <ul class="list singer-songs-list">
+                {% for song in singer.songs.all %}
+                    <li>
+                        <a href="{% url 'song:song_detail' song.kuwo_id %}">
+                            <img src="{{ song.image.url }}" alt="{{ song.name }}" class="thumbnail">
+                            <div class="sinfo">
+                                <span class="name">{{ song.name }}</span>
+                            </div>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <div class="back-link-container">
+            <a href="{% url 'singer:singer_list' %}?page={{ current_page }}" class="back-button">Back to Singers List</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const bioText = document.getElementById('singerBioText');
+            const toggleButton = document.getElementById('toggleBio');
+
+            function checkOverflow() {
+                if (bioText.scrollHeight > bioText.clientHeight) {
+                    toggleButton.style.display = 'inline-block';
+                    bioText.classList.add('singer-bio-truncated');
+                } else {
+                    toggleButton.style.display = 'none';
+                    bioText.classList.remove('singer-bio-truncated');
+                }
+            }
+
+            checkOverflow();
+
+            window.addEventListener('resize', checkOverflow);
+
+            if (toggleButton) {
+                toggleButton.addEventListener('click', function() {
+                    if (bioText.classList.contains('singer-bio-truncated')) {
+                        bioText.classList.remove('singer-bio-truncated');
+                        toggleButton.textContent = 'FOLD';
+                    } else {
+                        bioText.classList.add('singer-bio-truncated');
+                        toggleButton.textContent = 'SEE MORE';
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}

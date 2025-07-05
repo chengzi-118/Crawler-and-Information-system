@@ -1,7 +1,12 @@
 {% extends 'song/base.html' %}
+
 {% load static %}
 
 {% block title %}ACCOUNT MANAGEMENT{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'account/css/account.css' %}">
+{% endblock %}
 
 {% block content %}
     <section class="hero-section">
@@ -10,7 +15,7 @@
     </section>
     <div class="content-wrapper">
         <div class="left-pane">
-            <img src="{% static 'song/front.png' %}" class="front-image"></img>
+            <img src="{% static 'account/img/front.png' %}" class="front-image"></img>
         </div>
 
         <div class="right-pane">

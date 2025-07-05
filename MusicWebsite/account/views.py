@@ -24,6 +24,9 @@ def singer_redirect_view(request):
         return singer_views.singer_list(request)
 
 def set_username_view(request):
+    """
+    Let users set and delete username.
+    """
     if request.method == 'POST':
         action = request.POST.get('action')
         if action == 'set_username':

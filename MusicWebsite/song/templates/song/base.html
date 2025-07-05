@@ -5,19 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MUDIC LIB{% endblock %}</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'song/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
     <header>
         <nav>
             <div class="logo-container">
                 <a href="/">
-                    <img src="{% static 'song/logo.png' %}" alt="Home" class="logo-image">
+                    <img src="{% static 'img/logo.png' %}" alt="Home" class="logo-image">
                 </a>
             </div>
             <ul>
                 <li><a href="{% url 'singer:singer_list' %}">Singers</a></li>
-                <li><a href="{% url 'singer:singer_list' %}">Search</a></li>
+                <li><a href="{% url 'search:search_page' %}">Search</a></li>
                 <li><a href="{% url 'account:set_username' %}">Account</a></li>
             </ul>
         </nav>

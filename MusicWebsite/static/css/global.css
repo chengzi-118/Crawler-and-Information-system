@@ -1,0 +1,315 @@
+.summary {
+    text-align: center;
+    font-size: 1.2em;
+    color: #555;
+    font-weight: bold;
+    padding: 20px;
+    margin: 0px;
+    background-color: #f3e3fd;
+}
+
+.pagination-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+    padding: 15px 0;
+    background-color: #f3e3fd;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    gap: 10px;
+}
+
+.pagination-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.pagination-jump-form-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.current-page {
+    display: inline-block;
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-decoration: none;
+    background-color: #7C36EC;
+    color: #fff;
+    border-color: #7C36EC;
+    cursor: default;
+}
+
+.current-page:hover {
+    background-color: #7C36EC;
+    border-color: #7C36EC;
+}
+
+.pagination-link, .first-page-link, .last-page-link{
+    padding: 8px 14px;
+    background-color: #f3e3fd;
+    border-radius: 5px;
+    margin: 0 5px;
+    text-decoration: none;
+    color: #5704dc;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.pagination-link:hover, .first-page-link:hover, .last-page-link:hover{
+    background-color: #5704dc;
+    color: white;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 5px;
+}
+
+.pagination-jump-form {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.pagination-jump-form .page-input {
+    width: 60px;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+.pagination-jump-form .jump-button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    background-color: #7C36EC;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
+}
+
+.pagination-jump-form .jump-button:hover {
+    background-color: #6a2dc7;
+}
+
+.display-num-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f3e3fd;
+    gap: 10px;
+    padding: 10px;
+}
+
+.display-num-form input[type="text"] {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.display-num-form .submit-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    background-color: #7C36EC;
+    color: #fff;
+}
+
+.display-num-form .submit-button:hover {
+    background-color: #6a2dc7;
+}
+
+.detail-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #eee;
+}
+
+.detail-image {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 6px solid #5704dc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.detail-name {
+    font-size: 2.5em;
+    color: #333;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.original-url {
+    font-size: 0.9em;
+    color: #888;
+}
+
+.original-url a {
+    color: #5704dc;
+    text-decoration: none;
+}
+
+.original-url a:hover {
+    text-decoration: underline;
+}
+
+.resume-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.resume-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.section-title {
+    font-size: 1.8em;
+    color: #5704dc;
+    margin-bottom: 20px;
+    border-left: 5px solid #5704dc;
+    padding-left: 10px;
+    text-transform: uppercase;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.info-item {
+    background-color: #f9f9f9;
+    padding: 12px 15px;
+    border-radius: 5px;
+    border: 1px solid #eee;
+    font-size: 0.95em;
+}
+
+.info-item strong {
+    color: #444;
+}
+
+.singer-songs-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 25px;
+    list-style: none;
+}
+
+.singer-songs-list li {
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease-in-out;
+    aspect-ratio: 2/3;
+}
+
+.singer-songs-list li:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.singer-songs-list li a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    padding: 15px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.singer-songs-list .thumbnail {
+    width: 90%;
+    height: 60%;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.singer-songs-list .sinfo {
+    width: 100%;
+    text-align: center;
+    padding: 8px 5px;
+    height: 30%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.singer-songs-list .sinfo .name {
+    max-width: 100%;
+    color: #5704dc;
+    font-weight: bold;
+    display: block;
+    margin: 0 auto 5px auto;
+    word-wrap: break-word;
+    font-size: 1.4em;
+    line-height: 1.2;
+}
+
+.singer-songs-list .sinfo .song-artist {
+    display: block;
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-top: 8px;
+    color: #333;
+}
+
+.back-link-container {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.back-button {
+    display: inline-block;
+    padding: 12px 25px;
+    background-color: #5704dc;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #4203a1;
+}

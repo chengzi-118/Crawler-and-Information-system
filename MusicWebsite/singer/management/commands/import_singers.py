@@ -289,7 +289,9 @@ class Command(BaseCommand):
                             relative_path: str = os.path.relpath(
                                 found_image_path, image_root
                             ).replace('\\', '/')
-                            singer_instance.image = relative_path
+                            singer_instance.image = os.path.join(
+                                'Singer', relative_path
+                            ).replace('\\', '/')
                             
                             # Only update the image field
                             # to optimize database write

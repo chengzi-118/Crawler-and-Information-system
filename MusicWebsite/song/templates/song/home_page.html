@@ -1,8 +1,65 @@
 {% extends 'song/base.html' %}
 
+{% load static %}
+
 {% block title %}ECHOLLECT: ECHO THE WEB. COLLECT THE SOUND.{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+{% endblock %}
+
 {% block content %}
-    
-    
+    {% if songs %}
+        <p class="summary">Displaying {{ songs|length }} songs on page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.</p>
+        <ul class="singer-songs-list">
+            {% for song in songs %}
+                <li>
+                    <a href="{% url 'song:song_detail' song.pk %}?page={{ page_obj.number }}">
+                        <img src="{{ song.image.url }}" alt="{{ song.name }}" class="thumbnail">
+                        <div class="sinfo">
+                            <span class="name">{{ song.name }}</span>
+                            <span class="song-artist">BY: {{ song.singer }}</span>
+                        </div>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <div class="pagination-container">
+            <div class="pagination-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1" class="first-page-link">First Page</a>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="current-page">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}" class="pagination-link">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.paginator.num_pages }}" class="last-page-link">Last Page</a>
+                {% endif %}
+            </div>
+
+            <div class="pagination-jump-form-wrapper">
+                <form action="" method="get" class="pagination-jump-form">
+                    <input type="number" name="page" min="1" max="{{ page_obj.paginator.num_pages }}" value="{{ page_obj.number }}" class="page-input">
+                    <button type="submit" class="jump-button">Go</button>
+                </form>
+            </div>
+        </div>
+
+    {% else %}
+        <p>No songs find.</p>
+    {% endif %}
+
+    <form action="{% url 'song:change_display_num_url' %}" method="post" class="display-num-form">
+        {% csrf_token %}
+        <input type="text" name="display_num" placeholder="Songs per page" required>
+        <button type="submit" name="action" value="change" class="submit-button">Submit</button>
+    </form>
+
 {% endblock %}

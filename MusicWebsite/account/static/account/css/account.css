@@ -1,0 +1,119 @@
+.hero-section {
+    text-align: center;
+    padding: 20px 20px;
+    background-color: #f3e3fd;
+}
+
+.hero-section h2 {
+    color: #333;
+    font-size: 2em;
+    margin-bottom: 15px;
+}
+
+.hero-section h4 {
+    color: #333;
+    font-size: 1em;
+    margin-bottom: 15px;
+}
+
+.content-wrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+    width: 100%;
+    height: auto;
+}
+
+.left-pane {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.right-pane {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.front-image {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+.username-container {
+    background-color: #fff;
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 400px;
+}
+
+.username-container h1 {
+    color: #333;
+    font-size: 2.5em;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.username-container button {
+    margin: 10px 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: bold;
+    border-radius: 30px;
+    padding: 12px 25px;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.username-container button[value="set_username"] {
+    background-color: #7C36EC;
+    color: #fff;
+}
+
+.username-container button[value="set_username"]:hover {
+    background-color: #6a2dc7;
+    transform: scale(1.05);
+}
+
+.username-container button[value="clear_username"] {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.username-container button[value="clear_username"]:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
+}
+
+.username-container form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.username-container input[type="text"] {
+    width: 70%;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1.2em;
+    box-sizing: border-box;
+}
+
+.error-message {
+    color: #dc3545;
+    background-color: #ffe3e3;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 15px;
+}
