@@ -22,10 +22,17 @@ class SearchResultsView(View):
         result_count = 0
         search_time = 0.0
 
-        name_match_ids = set()
-        info_match_ids = set()
-        singer_name_match_ids = set()
-        lyrics_match_ids = set()
+        # These sets are used to track IDs for display count and exclusion in subsequent queries.
+        # They reflect the initial broad matches for each category.
+        name_match_ids_overall = set() # Accumulates all distinct IDs added to 'results'
+        info_match_ids_overall = set() # For singer search
+        
+        # Track IDs specifically for initial query results for correct exclusion
+        initial_song_name_ids = set()
+        initial_singer_name_ids = set()
+        initial_lyrics_ids = set()
+        initial_singer_info_ids = set()
+
 
         if query:
             start_time = time.time()
@@ -36,29 +43,42 @@ class SearchResultsView(View):
                 singer_name_match = Song.objects.filter(singer__name__icontains=query)
                 lyrics_match = Song.objects.filter(lyrics__icontains=query)
 
-                name_match_ids = set(name_match.values_list('pk', flat=True))
-                singer_name_match_ids = set(singer_name_match.values_list('pk', flat=True))
-                lyrics_match_ids = set(lyrics_match.values_list('pk', flat=True))
+                initial_song_name_ids = set(name_match.values_list('pk', flat=True))
+                initial_singer_name_ids = set(singer_name_match.values_list('pk', flat=True))
+                initial_lyrics_ids = set(lyrics_match.values_list('pk', flat=True))
                 
                 if name_match.exists():
                     results.append({'separator': "name"})
-                    results.extend(list(name_match))
+                    for song in name_match:
+                        # Ensure PK is valid and not already added from a previous iteration if any
+                        if song.pk is not None and song.pk != '' and song.pk not in name_match_ids_overall:
+                            results.append(song)
+                            name_match_ids_overall.add(song.pk)
                     
-                distinct_singer_name_match = singer_name_match.exclude(pk__in=name_match_ids)
+                distinct_singer_name_match = singer_name_match.exclude(pk__in=name_match_ids_overall)
                 
                 if distinct_singer_name_match.exists():
                     results.append({'separator': "singer_name"})
-                    results.extend(list(distinct_singer_name_match))
+                    for song in distinct_singer_name_match:
+                        # Ensure PK is valid and not already added
+                        if song.pk is not None and song.pk != '' and song.pk not in name_match_ids_overall:
+                            results.append(song)
+                            name_match_ids_overall.add(song.pk)
                     
+                # Use the accumulated IDs from both name and singer name matches for lyrics exclusion
+                ids_for_lyrics_exclusion = name_match_ids_overall.union(initial_song_name_ids).union(initial_singer_name_ids) # More robust exclusion set
                 distinct_lyrics_match = lyrics_match.\
-                        exclude(pk__in=name_match_ids).\
-                        exclude(pk__in=singer_name_match_ids)
+                        exclude(pk__in=ids_for_lyrics_exclusion)
                         
                 if distinct_lyrics_match.exists():
                     results.append({'separator': "lyric"})
-                    results.extend(list(lyrics_match))
-                    
-                result_count = name_match.count() + singer_name_match.count() + lyrics_match.count()
+                    for song in distinct_lyrics_match:
+                        # Ensure PK is valid and not already added
+                        if song.pk is not None and song.pk != '' and song.pk not in name_match_ids_overall:
+                            results.append(song)
+                            name_match_ids_overall.add(song.pk)
+                            
+                result_count = len(name_match_ids_overall)
 
 
             elif search_type == 'singer':
@@ -66,20 +86,28 @@ class SearchResultsView(View):
                 name_match = Singer.objects.filter(name__icontains=query)
                 info_match = Singer.objects.filter(info__icontains=query)
 
-                name_match_ids = set(name_match.values_list('pk', flat=True))
-                info_match_ids = set(info_match.values_list('pk', flat=True))
+                # Initialize a single set to track all distinct singer IDs added
+                current_added_singer_ids = set() 
                 
                 if name_match.exists():
                     results.append({'separator': "name"})
-                    results.extend(list(name_match))
+                    for singer in name_match:
+                        # Ensure PK is valid and not already added
+                        if singer.pk is not None and singer.pk != '' and singer.pk not in current_added_singer_ids:
+                            results.append(singer)
+                            current_added_singer_ids.add(singer.pk)
                     
-                distinct_info_match = info_match.exclude(pk__in=name_match_ids)
+                distinct_info_match = info_match.exclude(pk__in=current_added_singer_ids)
 
                 if distinct_info_match.exists():
                     results.append({'separator': "info"})
-                    results.extend(list(distinct_info_match))
+                    for singer in distinct_info_match:
+                        # Ensure PK is valid and not already added
+                        if singer.pk is not None and singer.pk != '' and singer.pk not in current_added_singer_ids:
+                            results.append(singer)
+                            current_added_singer_ids.add(singer.pk)
                 
-                result_count = name_match.count() + distinct_info_match.count()
+                result_count = len(current_added_singer_ids)
 
             end_time = time.time()
             search_time = round((end_time - start_time) * 1000, 2)
