@@ -15,7 +15,7 @@
             <img src="{{ song.image.url }}" alt="{{ song.name }}" class="detail-image">
             <h1 class="detail-name">{{ song.name }}</h1>
             <span class="detail-singer-name">
-                By: <a class="detail-singer-name-url" href="{% url 'singer:singer_detail' song.singer.pk %}">{{ song.singer.name }}</a>
+                By: <a class="detail-singer-name-url" href="{% url 'singer:singer_detail' song.singer.pk %}?from_song={{ song.kuwo_id }}">{{ song.singer.name }}</a>
             </span>
             <p class="original-url">Original Website: <a href="{{ song.original_url }}" target="_blank">{{ song.original_url }}</a></p>
         </header>

@@ -28,6 +28,7 @@ urlpatterns = [
     path('singers/', account_views.singer_redirect_view, name='singer_list_redirect'), 
     path('singers/', include('singer.urls')),
     path('account/', include('account.urls')), 
+    path('search/', account_views.search_redirect_view, name='search_redirect'), 
     path("search/", include('search.urls', namespace='search')),
 ]
 

@@ -54,7 +54,7 @@ def song_detail_view(request, song_id):
         return redirect('/account/')
     song = get_object_or_404(Song, pk = song_id)
     
-    current_page = request.GET.get('page', 1)
+    current_page = request.GET.get('song_page', 1)
     
     current_username = request.session['username']
     

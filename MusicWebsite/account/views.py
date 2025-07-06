@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from song import views as song_views 
 from singer import views as singer_views
+from search import views as search_views
 
 def home_redirect_view(request):
     """
@@ -22,6 +23,16 @@ def singer_redirect_view(request):
         return redirect('account:set_username')
     else:
         return singer_views.singer_list(request)
+    
+def search_redirect_view(request):
+    """
+    Check whether the user has set user name.
+    If not, redirect to setting page.
+    """
+    if 'username' not in request.session or not request.session['username']:
+        return redirect('account:set_username')
+    else:
+        return search_views.search_page_view(request)
 
 def set_username_view(request):
     """

@@ -81,6 +81,9 @@
                             <img src="{{ song.image.url }}" alt="{{ song.name }}" class="thumbnail">
                             <div class="sinfo">
                                 <span class="name">{{ song.name }}</span>
+                                {% if song.kuwo_id|stringformat:"s" == request.GET.from_song %}
+                                    <span class="special_add">(Came from)</span>
+                                {% endif %}
                             </div>
                         </a>
                     </li>

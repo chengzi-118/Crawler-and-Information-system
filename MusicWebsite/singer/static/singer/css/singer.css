@@ -46,3 +46,7 @@
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 15px;
 }
+
+.special_add {
+    color: #d094f3;
+}

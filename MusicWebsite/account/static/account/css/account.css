@@ -10,12 +10,6 @@
     margin-bottom: 15px;
 }
 
-.hero-section h4 {
-    color: #333;
-    font-size: 1em;
-    margin-bottom: 15px;
-}
-
 .content-wrapper{
     display: flex;
     justify-content: center;
@@ -116,4 +110,27 @@
     padding: 10px;
     border-radius: 5px;
     margin-top: 15px;
+}
+
+@keyframes highlightAndScale {
+    0% {
+        opacity: 0.7;
+        transform: scale(1);
+        color: #222;
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.5);
+        color: #7C36EC;
+    }
+    100% {
+        opacity: 0.7;
+        transform: scale(1);
+        color: #222;
+    }
+}
+
+.flash-text-wrapper {
+    display: inline-block;
+    animation: highlightAndScale 1.5s ease-in-out;
 }

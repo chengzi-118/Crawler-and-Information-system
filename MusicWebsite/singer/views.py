@@ -46,7 +46,7 @@ def singer_detail_view(request, singer_id):
         return redirect('/account/')
     singer = get_object_or_404(Singer, pk = singer_id)
     
-    current_page = request.GET.get('page', 1)
+    current_page = request.GET.get('singer_page', 1)
 
     context = {
         'singer': singer,

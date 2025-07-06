@@ -14,7 +14,7 @@
         <ul class="singer-songs-list">
             {% for song in songs %}
                 <li>
-                    <a href="{% url 'song:song_detail' song.pk %}?page={{ page_obj.number }}">
+                    <a href="{% url 'song:song_detail' song.pk %}?song_page={{ page_obj.number }}">
                         <img src="{{ song.image.url }}" alt="{{ song.name }}" class="thumbnail">
                         <div class="sinfo">
                             <span class="name">{{ song.name }}</span>
